@@ -54,8 +54,7 @@ def run_entertainment_mode(hand_landmarks, frame):
 
     pinch_distance = distance(thumb_tip, index_tip)
 
-    # ================= VOLUME CONTROL =================
-    # Only index + thumb active, others curled
+       # ================= VOLUME CONTROL =================
 
     volume_gesture = (
         index_up and
@@ -64,29 +63,22 @@ def run_entertainment_mode(hand_landmarks, frame):
         not little_up
     )
 
-    PINCH_CLOSE = 0.035   # pinch = decrease
-    PINCH_OPEN = 0.07     # hold apart = increase
-    STEP = 1.5
+    DISTANCE_THRESHOLD = 0.10   # adjust if needed
+    STEP = 0.6                  # same speed both directions
 
     if volume_gesture:
 
         current_vol = volume.GetMasterVolumeLevel()
 
-        # 🤏 PINCH = decrease continuously
-        if pinch_distance < PINCH_CLOSE:
-            new_vol = current_vol - STEP
-
-        # 🤏 HOLD APART = increase continuously
-        elif pinch_distance > PINCH_OPEN:
-            new_vol = current_vol + STEP
+        # 🤏 Distance-based control
+        if pinch_distance <= DISTANCE_THRESHOLD:
+            new_vol = current_vol - STEP   # Decrease
 
         else:
-            new_vol = current_vol
+            new_vol = current_vol + STEP   # Increase
 
         new_vol = max(minVol, min(maxVol, new_vol))
         volume.SetMasterVolumeLevel(new_vol, None)
-
-
     # ================= PLAY / PAUSE (FULL OPEN PALM) =================
 
     open_palm = (
