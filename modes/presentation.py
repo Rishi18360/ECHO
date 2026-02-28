@@ -17,7 +17,7 @@ sensitivity = 1.8
 
 # Thresholds
 DIST_THRESHOLD = 0.02
-SLIDE_COOLDOWN = 1.0
+SLIDE_COOLDOWN = 1.5
 
 last_slide_time = 0
 
