@@ -8,6 +8,7 @@ pyautogui.PAUSE = 0.01
 
 from modes.entertainment import run_entertainment_mode
 from modes.presentation import run_presentation_mode
+from modes.assistive import run_assistive_mode
 
 #INITIALIZE
 
@@ -83,11 +84,11 @@ while True:
                     (50, 50), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (0, 255, 0), 2)
 
-        cv2.putText(overlay, "1 Finger - Presentation",
+        cv2.putText(overlay, "1 Finger - Assistive",
                     (60, 120), cv2.FONT_HERSHEY_SIMPLEX,
                     0.7, (255, 255, 255), 2)
 
-        cv2.putText(overlay, "2 Fingers - Assistive",
+        cv2.putText(overlay, "2 Fingers - Presentation",
                     (60, 160), cv2.FONT_HERSHEY_SIMPLEX,
                     0.7, (255, 255, 255), 2)
 
@@ -158,6 +159,10 @@ while True:
 
           
             if current_mode == 1:
+                run_assistive_mode(hand)
+                
+
+            if current_mode == 2:
                 run_presentation_mode(hand)
 
             if current_mode == 4:

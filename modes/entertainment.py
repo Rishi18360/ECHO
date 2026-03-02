@@ -6,14 +6,14 @@ import cv2
 from pycaw.pycaw import AudioUtilities
 
 
-# ================= AUDIO SETUP =================
+#AUDIO SETUP
 
 devices = AudioUtilities.GetSpeakers()
 volume = devices.EndpointVolume
 
 minVol, maxVol = volume.GetVolumeRange()[:2]
 
-# ================= STATE VARIABLES =================
+#STATE VARIABLES
 
 DIST_THRESHOLD = 0.02
 
@@ -23,7 +23,7 @@ last_play_pause_time = 0
 PLAY_PAUSE_COOLDOWN = 0.6
 
 
-# ================= HELPER FUNCTIONS =================
+#HELPER FUNCTIONS
 
 def distance(a, b):
     return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
@@ -33,7 +33,7 @@ def finger_extended(tip, base, palm):
     return distance(tip, palm) > distance(base, palm) + DIST_THRESHOLD
 
 
-# ================= ENTERTAINMENT MODE =================
+#ENTERTAINMENT MODE
 
 def run_entertainment_mode(hand_landmarks, frame):
     global palm_active, last_play_pause_time
@@ -54,7 +54,7 @@ def run_entertainment_mode(hand_landmarks, frame):
 
     pinch_distance = distance(thumb_tip, index_tip)
 
-       # ================= VOLUME CONTROL =================
+       #VOLUME CONTROL
 
     volume_gesture = (
         index_up and
@@ -63,14 +63,13 @@ def run_entertainment_mode(hand_landmarks, frame):
         not little_up
     )
 
-    DISTANCE_THRESHOLD = 0.10   # adjust if needed
-    STEP = 0.6                  # same speed both directions
+    DISTANCE_THRESHOLD = 0.10  
+    STEP = 0.6                  #vol change speed
 
     if volume_gesture:
 
         current_vol = volume.GetMasterVolumeLevel()
 
-        # 🤏 Distance-based control
         if pinch_distance <= DISTANCE_THRESHOLD:
             new_vol = current_vol - STEP   # Decrease
 
@@ -79,7 +78,7 @@ def run_entertainment_mode(hand_landmarks, frame):
 
         new_vol = max(minVol, min(maxVol, new_vol))
         volume.SetMasterVolumeLevel(new_vol, None)
-    # ================= PLAY / PAUSE (FULL OPEN PALM) =================
+    #PLAY/PAUSE
 
     open_palm = (
         index_up and
@@ -101,7 +100,7 @@ def run_entertainment_mode(hand_landmarks, frame):
         palm_active = False
 
 
-    # ================= VISUAL AUDIO BAR =================
+    #VISUAL AUDIO BAR
 
     current_vol = volume.GetMasterVolumeLevel()
 

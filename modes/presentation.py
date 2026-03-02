@@ -15,6 +15,9 @@ last_hand_y = None
 # Sensitivity
 sensitivity = 1.8
 
+# Smoothing
+SMOOTHING = 0.20
+
 # Thresholds
 DIST_THRESHOLD = 0.02
 SLIDE_COOLDOWN = 1.5
@@ -44,7 +47,7 @@ def count_non_thumb_fingers(lm):
     return count
 
 
-#Presentation Mode
+# Presentation Mode
 
 def run_presentation_mode(hand_landmarks):
     global last_hand_x, last_hand_y
@@ -55,33 +58,27 @@ def run_presentation_mode(hand_landmarks):
     finger_count = count_non_thumb_fingers(lm)
     current_time = time.time()
 
-    #NEXT SLIDE-2 Fingers
-
+    # NEXT SLIDE
     if finger_count == 2:
         if current_time - last_slide_time > SLIDE_COOLDOWN:
             pyautogui.press("right")
             last_slide_time = current_time
 
-        #Reset tracking to avoid cursor jump
         last_hand_x = None
         last_hand_y = None
         return
-    
 
+    # PREVIOUS SLIDE
     if finger_count == 3:
         if current_time - last_slide_time > SLIDE_COOLDOWN:
             pyautogui.press("left")
             last_slide_time = current_time
 
-        #Reset tracking to avoid cursor jump
         last_hand_x = None
         last_hand_y = None
         return
 
-
-    #CURSOR CONTROL — 1 Finger Only
-
-
+    # CURSOR CONTROL
     if finger_count == 1:
 
         index_tip = lm[8]
@@ -96,10 +93,32 @@ def run_presentation_mode(hand_landmarks):
         dx = hand_x - last_hand_x
         dy = hand_y - last_hand_y
 
-        cursor_x += dx * screen_w * sensitivity
-        cursor_y += dy * screen_h * sensitivity
+        
+        MAX_DELTA = 0.05
+        if abs(dx) > MAX_DELTA:
+            dx = 0
+        if abs(dy) > MAX_DELTA:
+            dy = 0
 
-        # Safe margin to avoid PyAutoGUI fail-safe
+        # Remove jitter
+        MIN_MOVEMENT = 0.003
+        if abs(dx) < MIN_MOVEMENT:
+            dx = 0
+        if abs(dy) < MIN_MOVEMENT:
+            dy = 0
+
+        target_x = cursor_x + dx * screen_w * sensitivity
+        target_y = cursor_y + dy * screen_h * sensitivity
+
+        
+        cursor_x = cursor_x * (1 - SMOOTHING) + target_x * SMOOTHING
+        cursor_y = cursor_y * (1 - SMOOTHING) + target_y * SMOOTHING
+
+        # Precision cleanup
+        cursor_x = round(cursor_x, 2)
+        cursor_y = round(cursor_y, 2)
+
+        # Safe margin to avoid fail-safe
         MARGIN = 10
         cursor_x = max(MARGIN, min(screen_w - MARGIN, cursor_x))
         cursor_y = max(MARGIN, min(screen_h - MARGIN, cursor_y))
@@ -110,6 +129,5 @@ def run_presentation_mode(hand_landmarks):
         last_hand_y = hand_y
 
     else:
-        # Reset when no valid gesture
         last_hand_x = None
         last_hand_y = None
