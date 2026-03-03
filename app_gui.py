@@ -92,7 +92,24 @@ class EchoApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("ECHO – minimal desktop UI")
-        self.geometry("1345x830")
+        win_w, win_h = 1578, 865
+        scr_w = self.winfo_screenwidth()
+        scr_h = self.winfo_screenheight()
+        # use work area (excludes taskbar) via ctypes on Windows
+        try:
+            import ctypes
+            from ctypes import wintypes
+            rect = wintypes.RECT()
+            ctypes.windll.user32.SystemParametersInfoW(0x0030, 0,
+                                                       ctypes.byref(rect), 0)
+            work_w = rect.right - rect.left
+            work_h = rect.bottom - rect.top
+            x = rect.left + (work_w - win_w) // 2
+            y = rect.top + (work_h - win_h) // 2
+        except Exception:
+            x = (scr_w - win_w) // 2
+            y = (scr_h - win_h) // 2
+        self.geometry(f"{win_w}x{win_h}+{x}+{y}")
 
         self.app_state = "menu"
         self.current_mode = None
@@ -120,12 +137,11 @@ class EchoApp(tk.Tk):
         # overall background
         self.configure(bg="#0d0d0d")
 
-        # grid layout: left panel 1/3, separator, right panel 2/3
+        # grid layout: left panel 1/4, separator, right panel 3/4
         self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=0)
         self.grid_columnconfigure(0, weight=1, uniform="a")
         self.grid_columnconfigure(1, weight=0)         # thin separator
-        self.grid_columnconfigure(2, weight=2, uniform="a")
+        self.grid_columnconfigure(2, weight=3, uniform="a")
 
         # left panel (slightly lighter dark)
         left_frame = tk.Frame(self, bg="#111118")
@@ -149,43 +165,38 @@ class EchoApp(tk.Tk):
             left_frame, text="E C H O", fg="#00d4ff", bg="#111118",
             font=("Consolas", 22, "bold"),
         )
-        title_lbl.grid(row=0, column=0, sticky="s", pady=(0, 10))
+        title_lbl.grid(row=0, column=0, sticky="s", pady=(0, 8))
 
         # four tiles
         self.tiles = []
         names = ("Assistive", "Presentation", "Communication", "Entertainment")
         for idx, name in enumerate(names, start=1):
             tile = ModeTile(left_frame, name, finger_num=idx,
-                            width=260, height=72, bg="#111118")
-            tile.grid(row=idx, column=0, pady=14)
+                            width=240, height=68, bg="#111118")
+            tile.grid(row=idx, column=0, pady=14, padx=16)
             self.tiles.append(tile)
 
-        # hint text below tiles
-        hint = tk.Label(
-            left_frame, text="Hold 1\u20134 fingers to select",
-            fg="#cccccc", bg="#111118", font=("Segoe UI", 8),
-        )
-        hint.grid(row=5, column=0, pady=(6, 0))
+        # hint lines below tiles, towards the bottom
+        hints_frame = tk.Frame(left_frame, bg="#111118")
+        hints_frame.grid(row=6, column=0, sticky="s", pady=(0, 24))
+
+        for hint_text in ("Hold 1\u20134 fingers to select",
+                          "Esc for back",
+                          "Q to exit"):
+            tk.Label(
+                hints_frame, text=hint_text,
+                fg="#999999", bg="#111118",
+                font=("Segoe UI", 9),
+            ).pack(anchor="center", pady=1)
 
         # --- right panel (camera) ---
         right_frame.grid_rowconfigure(0, weight=1)
         right_frame.grid_columnconfigure(0, weight=1)
 
-        cam_border = tk.Frame(right_frame, bg="#1a1a2e", padx=6, pady=6)
-        cam_border.grid(row=0, column=0, padx=20, pady=20, sticky="nswe")
+        cam_border = tk.Frame(right_frame, bg="#1a1a2e", padx=3, pady=3)
+        cam_border.grid(row=0, column=0, padx=6, pady=6, sticky="nswe")
         self.image_label = tk.Label(cam_border, bg="#0d0d0d")
         self.image_label.pack(expand=True, fill="both")
-
-        # --- footer ---
-        footer = tk.Frame(self, bg="#111118", height=32)
-        footer.grid(row=1, column=0, columnspan=3, sticky="we")
-        self.status_label = tk.Label(
-            footer,
-            text="ESC  go back        Q  quit",
-            fg="#cccccc", bg="#111118",
-            font=("Consolas", 9),
-        )
-        self.status_label.pack(pady=5)
 
     def _bind_keys(self):
         self.bind("<Escape>", lambda e: self._return_to_menu())
@@ -266,6 +277,13 @@ class EchoApp(tk.Tk):
 
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil = Image.fromarray(img)
+
+        # resize frame to fill the camera label area
+        lbl_w = self.image_label.winfo_width()
+        lbl_h = self.image_label.winfo_height()
+        if lbl_w > 1 and lbl_h > 1:
+            pil = pil.resize((lbl_w, lbl_h), Image.LANCZOS)
+
         imgtk = ImageTk.PhotoImage(pil)
         self.image_label.imgtk = imgtk
         self.image_label.configure(image=imgtk)
