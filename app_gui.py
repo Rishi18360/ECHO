@@ -92,7 +92,7 @@ class EchoApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("ECHO – minimal desktop UI")
-        win_w, win_h = 1578, 865
+        win_w, win_h = 1245, 730
         scr_w = self.winfo_screenwidth()
         scr_h = self.winfo_screenheight()
         # use work area (excludes taskbar) via ctypes on Windows
