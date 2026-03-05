@@ -231,13 +231,18 @@ class EchoApp(tk.Tk):
                 detected = count_non_thumb_fingers(hand.landmark)
                 if self.app_state == "active":
                     if self.current_mode == 1:
-                        run_assistive_mode(hand)
+                        run_assistive_mode(hand,frame)
                     elif self.current_mode == 2:
                         run_presentation_mode(hand)
                     elif self.current_mode == 3:
-                        run_communication_mode(hand)
+                        run_communication_mode(hand, frame)
                     elif self.current_mode == 4:
                         run_entertainment_mode(hand, frame)
+
+        # Communication overlay even when no hand is visible
+        if (self.app_state == "active" and self.current_mode == 3
+                and not result.multi_hand_landmarks):
+            run_communication_mode(None, frame)
 
         if self.app_state == "menu":
             if detected in [1, 2, 3, 4]:
@@ -272,6 +277,17 @@ class EchoApp(tk.Tk):
                 (0, 255, 0),
                 2,
             )
+
+            h, w, _ = frame.shape
+            cv2.putText(
+                    frame,
+                    "Press ESC to return | Hold 1/2/3/4 fingers to change mode",
+                    (20, h - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (255, 255, 255),
+                    2,
+            )    
 
         self._highlight_menu(detected if self.app_state == "menu" else None)
 

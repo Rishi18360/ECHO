@@ -1,6 +1,8 @@
 import pyautogui
 import math
 import time
+import cv2
+from pycaw.pycaw import AudioUtilities
 
 # Screen size
 screen_w, screen_h = pyautogui.size()
@@ -27,6 +29,14 @@ click_start_time = None
 DOUBLE_CLICK_HOLD = 0.9
 
 
+# AUDIO SETUP (ADDED)
+
+devices = AudioUtilities.GetSpeakers()
+volume = devices.EndpointVolume
+
+minVol, maxVol = volume.GetVolumeRange()[:2]
+
+
 #HELPER FUNCTIONS
 
 def distance(a, b):
@@ -39,7 +49,7 @@ def finger_extended(tip, base, palm):
 
 #ASSISTIVE MODE
 
-def run_assistive_mode(hand_landmarks):
+def run_assistive_mode(hand_landmarks, frame):
     global last_hand_x, last_hand_y
     global cursor_x, cursor_y
     global middle_active, click_start_time
@@ -51,6 +61,36 @@ def run_assistive_mode(hand_landmarks):
     middle_up = finger_extended(lm[12], lm[10], lm[0])
     ring_up = finger_extended(lm[16], lm[14], lm[0])
     little_up = finger_extended(lm[20], lm[18], lm[0])
+
+    thumb_tip = lm[4]
+    index_tip = lm[8]
+    pinch_distance = distance(thumb_tip, index_tip)
+
+    #VOLUME CONTROL (ADDED FROM ENTERTAINMENT MODE)
+
+    volume_gesture = (
+        index_up and
+        not middle_up and
+        not ring_up and
+        not little_up
+    )
+
+    DISTANCE_THRESHOLD = 0.10
+    STEP = 0.6
+
+    if volume_gesture:
+
+        current_vol = volume.GetMasterVolumeLevel()
+
+        if pinch_distance <= DISTANCE_THRESHOLD:
+            new_vol = current_vol - STEP
+
+        else:
+            new_vol = current_vol + STEP
+
+        new_vol = max(minVol, min(maxVol, new_vol))
+        volume.SetMasterVolumeLevel(new_vol, None)
+
 
     #CURSOR MOVEMENT
     if index_up and not middle_up and not ring_up and not little_up:
@@ -133,3 +173,47 @@ def run_assistive_mode(hand_landmarks):
         click_start_time = None
         last_hand_x = None
         last_hand_y = None
+
+
+    #VISUAL AUDIO BAR (ADDED)
+
+    current_vol = volume.GetMasterVolumeLevel()
+
+    vol_percent = int(
+        (current_vol - minVol) / (maxVol - minVol) * 100
+    )
+
+    h, w, _ = frame.shape
+
+    bar_x = w - 80
+    bar_y = 100
+    bar_height = 300
+    bar_width = 30
+
+    cv2.rectangle(
+        frame,
+        (bar_x, bar_y),
+        (bar_x + bar_width, bar_y + bar_height),
+        (100, 100, 100),
+        2
+    )
+
+    filled_height = int(bar_height * vol_percent / 100)
+
+    cv2.rectangle(
+        frame,
+        (bar_x, bar_y + bar_height - filled_height),
+        (bar_x + bar_width, bar_y + bar_height),
+        (0, 255, 0),
+        -1
+    )
+
+    cv2.putText(
+        frame,
+        f"{vol_percent}%",
+        (bar_x - 20, bar_y - 20),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        (0, 255, 0),
+        2
+    )

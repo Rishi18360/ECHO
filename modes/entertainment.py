@@ -115,6 +115,7 @@ def run_entertainment_mode(hand_landmarks, frame):
     bar_height = 300
     bar_width = 30
 
+    
     cv2.rectangle(
         frame,
         (bar_x, bar_y),
