@@ -235,9 +235,14 @@ class EchoApp(tk.Tk):
                     elif self.current_mode == 2:
                         run_presentation_mode(hand)
                     elif self.current_mode == 3:
-                        run_communication_mode(hand)
+                        run_communication_mode(hand, frame)
                     elif self.current_mode == 4:
                         run_entertainment_mode(hand, frame)
+
+        # Communication overlay even when no hand is visible
+        if (self.app_state == "active" and self.current_mode == 3
+                and not result.multi_hand_landmarks):
+            run_communication_mode(None, frame)
 
         if self.app_state == "menu":
             if detected in [1, 2, 3, 4]:
