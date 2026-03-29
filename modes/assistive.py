@@ -4,10 +4,10 @@ import time
 import cv2
 from pycaw.pycaw import AudioUtilities
 
-# Screen size
+#Screen size
 screen_w, screen_h = pyautogui.size()
 
-# Cursor state
+#Cursor state
 cursor_x, cursor_y = pyautogui.position()
 
 # Tracking state
@@ -16,14 +16,12 @@ last_hand_y = None
 filtered_hand_x = None
 filtered_hand_y = None
 
-# Sensitivity
 sensitivity = 8.0
 
-# Smoothing
 SMOOTHING = 0.20
 HAND_FILTER_ALPHA = 0.35
 
-# Threshold
+#Threshold
 DIST_THRESHOLD = 0.02
 
 # Click state
@@ -32,7 +30,7 @@ click_start_time = None
 DOUBLE_CLICK_HOLD = 0.9
 
 
-# AUDIO SETUP (ADDED)
+#Audio-setup
 
 devices = AudioUtilities.GetSpeakers()
 volume = devices.EndpointVolume
@@ -70,7 +68,7 @@ def run_assistive_mode(hand_landmarks, frame):
     index_tip = lm[8]
     pinch_distance = distance(thumb_tip, index_tip)
 
-    #VOLUME CONTROL (ADDED FROM ENTERTAINMENT MODE)
+    #VOLUME CONTROL
 
     volume_gesture = (
         index_up and
@@ -90,8 +88,6 @@ def run_assistive_mode(hand_landmarks, frame):
         if pinch_distance <= DISTANCE_THRESHOLD:
             new_vol = current_vol - STEP
 
-        # Only treat this as volume-up when thumb-index distance stays
-        # within a controlled range; larger spreads are for cursor movement.
         elif pinch_distance <= MAX_VOL_SET:
             new_vol = current_vol + STEP
 
@@ -211,7 +207,7 @@ def run_assistive_mode(hand_landmarks, frame):
         filtered_hand_y = None
 
 
-    #VISUAL AUDIO BAR (ADDED)
+    #Audio bar
 
     current_vol = volume.GetMasterVolumeLevel()
 

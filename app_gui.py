@@ -1,9 +1,4 @@
-"""GUI implementation for the ECHO application.
 
-Contains the Tkinter-based UI, camera loop, gesture-driven menu and mode
-interaction.  This module is imported by `main.py` so that `python main.py`
-launches the desktop app immediately.
-"""
 
 import tkinter as tk
 from tkinter import ttk
@@ -19,7 +14,7 @@ from modes.presentation import run_presentation_mode
 from modes.communication import run_communication_mode
 from modes.entertainment import run_entertainment_mode
 
-# shared helpers -----------------------------------------------------------
+# shared helpers
 HOLD_TIME = 1.0  # seconds
 MODE_NAMES = {
     1: "ASSISTIVE MODE",
@@ -28,9 +23,7 @@ MODE_NAMES = {
     4: "ENTERTAINMENT MODE",
 }
 
-# Fill these lists with your own mode details.
-# Example item format:
-# "- Function: Cursor control | Gesture: Index finger up"
+
 MODE_INFO = {
     1: ["index:cursor","index+middle:double-click","thumb+index:volume"],
     2: ["index:cursor","index+middle:next-tslide","index+middle+ring:previous-slide"],
@@ -39,7 +32,7 @@ MODE_INFO = {
 }
 
 
-# small canvas subclass to draw a rounded rectangle with text
+
 class ModeTile(tk.Canvas):
     CYAN   = "#00d4ff"
     GREEN  = "#4ade80"

@@ -6,8 +6,7 @@ import cv2
 from pycaw.pycaw import AudioUtilities
 
 
-#AUDIO SETUP
-
+#Audio setup
 devices = AudioUtilities.GetSpeakers()
 volume = devices.EndpointVolume
 
