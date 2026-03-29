@@ -63,8 +63,9 @@ def run_entertainment_mode(hand_landmarks, frame):
         not little_up
     )
 
-    DISTANCE_THRESHOLD = 0.10  
-    STEP = 0.6                  #vol change speed
+    DISTANCE_THRESHOLD = 0.10
+    MAX_VOL_SET = 0.21
+    STEP = 0.6                 #vol change speed
 
     if volume_gesture:
 
@@ -73,8 +74,11 @@ def run_entertainment_mode(hand_landmarks, frame):
         if pinch_distance <= DISTANCE_THRESHOLD:
             new_vol = current_vol - STEP   # Decrease
 
-        else:
+        elif pinch_distance <= MAX_VOL_SET:
             new_vol = current_vol + STEP   # Increase
+
+        else:
+            new_vol = current_vol
 
         new_vol = max(minVol, min(maxVol, new_vol))
         volume.SetMasterVolumeLevel(new_vol, None)

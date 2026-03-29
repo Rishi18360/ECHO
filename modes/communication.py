@@ -1,17 +1,3 @@
-"""Communication mode – ASL gesture recognition.
-
-Recognises five ASL-inspired single-hand gestures and displays the
-corresponding word on the camera feed.
-
-Gesture -> Word mapping
------------------------
-  Open palm (all five fingers)          ->  STOP
-  Thumbs-up (only thumb extended)       ->  YES
-  Thumb + index only                    ->  NO
-  Index + pinky only                    ->  HELP
-  Shaka / Y-hand (thumb + pinky only)   ->  THANKS
-"""
-
 import math
 import time
 import cv2
