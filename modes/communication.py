@@ -1,29 +1,21 @@
-<<<<<<< HEAD
-"""Communication mode – ASL gesture recognition.
+"""Communication mode - ASL gesture recognition.
 
-Recognises five ASL-inspired single-hand gestures and displays the
+Recognizes five ASL-inspired single-hand gestures and displays the
 corresponding word on the camera feed.
 
 Gesture -> Word mapping
 -----------------------
-  Open palm (all five fingers)          ->  STOP
-  Thumbs-up (only thumb extended)       ->  YES
-  Thumb + index only                    ->  NO
-  Index + pinky only                    ->  HELP
-  Shaka / Y-hand (thumb + pinky only)   ->  THANKS
+    Open palm (all five fingers)          ->  STOP
+    Thumbs-up (only thumb extended)       ->  YES
+    Thumb + index only                    ->  NO
+    Index + pinky only                    ->  HELP
+    Shaka / Y-hand (thumb + pinky only)   ->  THANKS
 """
-
-=======
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
 import math
 import time
 import cv2
 
-<<<<<<< HEAD
-# ── Tuning constants ──────────────────────────────────────────────────
-=======
-#Tuning constants
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+# Tuning constants
 _HOLD       = 10     # consecutive matching frames to lock-in a word
 _COOLDOWN   = 1.5    # seconds before the next word can be accepted
 _SHOW_SEC   = 3.0    # how long confirmed word stays on screen
@@ -31,11 +23,7 @@ _MISS_TOL   = 3      # frames of no detection before tracking resets
 _FINGER_THR = 0.02   # extension-distance margin (non-thumb fingers)
 _THUMB_THR  = 0.01   # extension-distance margin (thumb)
 
-<<<<<<< HEAD
-# ── Module-level state ────────────────────────────────────────────────
-=======
-#Module-level state
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+# Module-level state
 _track_gesture = None    # gesture currently being tracked
 _track_count   = 0       # consecutive frames of _track_gesture
 _miss_count    = 0       # frames since last matching detection
@@ -43,12 +31,8 @@ _last_time     = 0.0     # timestamp of last accepted word
 _word          = ""      # currently displayed (confirmed) word
 _word_time     = 0.0     # when _word was set
 
-<<<<<<< HEAD
-# ── ASL gesture table ────────────────────────────────────────────────
-#  (thumb, index, middle, ring, pinky)  True = extended, None = don't care
-=======
-#ASL gesture table
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+# ASL gesture table
+# (thumb, index, middle, ring, pinky)  True = extended, None = don't care
 _SIGNS = {
     "STOP":   (True,  True,  True,  True,  True),
     "YES":    (True,  False, False, False, False),
@@ -57,12 +41,8 @@ _SIGNS = {
     "THANKS": (True,  False, False, False, True),
 }
 
-<<<<<<< HEAD
-# ── Low-level helpers ────────────────────────────────────────────────
+# Low-level helpers
 
-=======
-#Low-level helpers
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
 def _dist(a, b):
     return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 
@@ -77,11 +57,7 @@ def _thumb_up(lm):
 
 
 def _classify(lm):
-<<<<<<< HEAD
     """Return the ASL word matching the current hand shape, or *None*."""
-=======
-    
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
     state = (
         _thumb_up(lm),
         _finger_up(lm[8],  lm[6],  lm[0]),    # index
@@ -95,11 +71,7 @@ def _classify(lm):
     return None
 
 
-<<<<<<< HEAD
-# ── Drawing helpers ──────────────────────────────────────────────────
-=======
-#Drawing helpers
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+# Drawing helpers
 
 def _centered(img, text, cx, cy, scale, color, thick):
     """Draw *text* horizontally centred on (*cx*, *cy*)."""
@@ -120,22 +92,14 @@ def _hud(frame, word):
     cv2.addWeighted(ov, 0.72, frame, 0.28, 0, frame)
     cv2.line(frame, (0, top), (w, top), (255, 212, 0), 2)
 
-<<<<<<< HEAD
-    # ── show word centred ──
-=======
-    #show word centred
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+    # Show word centered.
     if word:
         cx, cy = w // 2, top + bar // 2
         _centered(frame, word, cx, cy, 1.3, (0, 0, 0), 6)
         _centered(frame, word, cx, cy, 1.3, (100, 255, 80), 3)
 
 
-<<<<<<< HEAD
-# ── Public entry point ───────────────────────────────────────────────
-=======
-#Public entry point
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+# Public entry point
 
 def run_communication_mode(hand_landmarks, frame=None):
     """Process one camera frame for communication mode.
@@ -148,21 +112,12 @@ def run_communication_mode(hand_landmarks, frame=None):
 
     now = time.time()
     gesture = None
-    progress = 0.0
 
-<<<<<<< HEAD
-    # ── classify current hand pose ──
+    # Classify current hand pose.
     if hand_landmarks is not None:
         gesture = _classify(hand_landmarks.landmark)
 
-    # ── tracking with jitter tolerance ──
-=======
-    #classify current hand pose
-    if hand_landmarks is not None:
-        gesture = _classify(hand_landmarks.landmark)
-
-    #tracking with jitter tolerance
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+    # Track with jitter tolerance.
     if gesture is not None:
         if gesture == _track_gesture:
             _track_count += 1
@@ -176,10 +131,7 @@ def run_communication_mode(hand_landmarks, frame=None):
             _track_gesture = None
             _track_count = 0
 
-<<<<<<< HEAD
-    # ── accept gesture when held long enough ──
-=======
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
+    # Accept gesture when held long enough.
     if (_track_gesture is not None
             and _track_count >= _HOLD
             and now - _last_time >= _COOLDOWN):
@@ -189,18 +141,9 @@ def run_communication_mode(hand_landmarks, frame=None):
         _track_gesture = None
         _track_count = 0
 
-<<<<<<< HEAD
-    # ── expire displayed word ──
+    # Expire displayed word.
     shown = _word if (now - _word_time < _SHOW_SEC) else ""
 
-    # ── draw overlay ──
+    # Draw overlay.
     if frame is not None:
         _hud(frame, shown)
-=======
-    #expire displayed word
-    shown = _word if (now - _word_time < _SHOW_SEC) else ""
-
-    #draw overlay
-    if frame is not None:
-        _hud(frame, shown)
->>>>>>> 904422be3f4785dc68706ff46c76d3f80613d5aa
