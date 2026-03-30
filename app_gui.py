@@ -1,9 +1,4 @@
-"""GUI implementation for the ECHO application.
 
-Contains the Tkinter-based UI, camera loop, gesture-driven menu and mode
-interaction.  This module is imported by `main.py` so that `python main.py`
-launches the desktop app immediately.
-"""
 
 import tkinter as tk
 from tkinter import ttk
@@ -19,7 +14,7 @@ from modes.presentation import run_presentation_mode
 from modes.communication import run_communication_mode
 from modes.entertainment import run_entertainment_mode
 
-# shared helpers -----------------------------------------------------------
+# shared helpers
 HOLD_TIME = 1.0  # seconds
 MODE_NAMES = {
     1: "ASSISTIVE MODE",
@@ -29,7 +24,15 @@ MODE_NAMES = {
 }
 
 
-# small canvas subclass to draw a rounded rectangle with text
+MODE_INFO = {
+    1: ["index:cursor","index+middle:double-click","thumb+index:volume"],
+    2: ["index:cursor","index+middle:next-tslide","index+middle+ring:previous-slide"],
+    3: ["Open palm:STOP","Thumbs-up:YES","Thumb+index:NO","Index+pinky:HELP","thumb+pinky:THANKS"],
+    4: ["thumb+index:volume","palm close & open:play/pause"],
+}
+
+
+
 class ModeTile(tk.Canvas):
     CYAN   = "#00d4ff"
     GREEN  = "#4ade80"
@@ -177,8 +180,29 @@ class EchoApp(tk.Tk):
             self.tiles.append(tile)
 
         # hint lines below tiles, towards the bottom
+        self.info_title = tk.Label(
+            left_frame,
+            text="MODE INFO",
+            fg="#00d4ff",
+            bg="#111118",
+            font=("Segoe UI", 10, "bold"),
+        )
+        self.info_title.grid(row=5, column=0, sticky="s", pady=(12, 4))
+
+        self.info_value = tk.Label(
+            left_frame,
+            text="",
+            fg="#bbbbbb",
+            bg="#111118",
+            font=("Consolas", 9),
+            justify="left",
+            anchor="n",
+            wraplength=255,
+        )
+        self.info_value.grid(row=6, column=0, sticky="n", padx=18, pady=(0, 8))
+
         hints_frame = tk.Frame(left_frame, bg="#111118")
-        hints_frame.grid(row=6, column=0, sticky="s", pady=(0, 24))
+        hints_frame.grid(row=7, column=0, sticky="s", pady=(0, 24))
 
         for hint_text in ("Hold 1\u20134 fingers to select",
                           "Esc for back",
@@ -198,6 +222,8 @@ class EchoApp(tk.Tk):
         self.image_label = tk.Label(cam_border, bg="#0d0d0d")
         self.image_label.pack(expand=True, fill="both")
 
+        self._refresh_mode_info()
+
     def _bind_keys(self):
         self.bind("<Escape>", lambda e: self._return_to_menu())
         self.bind("q", lambda e: self.quit())
@@ -210,6 +236,14 @@ class EchoApp(tk.Tk):
                 tile.set_color(ModeTile.GREEN)
             else:
                 tile.set_color(ModeTile.CYAN)
+
+    def _refresh_mode_info(self):
+        if self.app_state != "active" or self.current_mode not in MODE_INFO:
+            self.info_value.configure(text="")
+            return
+
+        lines = MODE_INFO.get(self.current_mode, [])
+        self.info_value.configure(text="\n".join(lines))
 
     def _update_frame(self):
         if not self.running:
@@ -231,7 +265,7 @@ class EchoApp(tk.Tk):
                 detected = count_non_thumb_fingers(hand.landmark)
                 if self.app_state == "active":
                     if self.current_mode == 1:
-                        run_assistive_mode(hand)
+                        run_assistive_mode(hand,frame)
                     elif self.current_mode == 2:
                         run_presentation_mode(hand)
                     elif self.current_mode == 3:
@@ -252,6 +286,7 @@ class EchoApp(tk.Tk):
                         self.app_state = "active"
                         self.last_finger_count = None
                         self.gesture_start_time = None
+                        self._refresh_mode_info()
                 else:
                     self.last_finger_count = detected
                     self.gesture_start_time = time.time()
@@ -278,6 +313,17 @@ class EchoApp(tk.Tk):
                 2,
             )
 
+            h, w, _ = frame.shape
+            cv2.putText(
+                    frame,
+                    "Press ESC to return",
+                    (20, h - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (255, 255, 255),
+                    2,
+            )    
+
         self._highlight_menu(detected if self.app_state == "menu" else None)
 
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -300,6 +346,7 @@ class EchoApp(tk.Tk):
         self.current_mode = None
         self.last_finger_count = None
         self.gesture_start_time = None
+        self._refresh_mode_info()
 
     def quit(self):
         self.running = False
