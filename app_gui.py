@@ -28,7 +28,7 @@ MODE_INFO = {
     1: ["index:cursor","index+middle:double-click","thumb+index:volume"],
     2: ["index:cursor","index+middle:next-tslide","index+middle+ring:previous-slide"],
     3: ["Open palm:STOP","Thumbs-up:YES","Thumb+index:NO","Index+pinky:HELP","thumb+pinky:THANKS"],
-    4: ["thumb+index:volume","palm close & open:play/pause"],
+    4: ["thumb+index:volume","open palm:play/pause"],
 }
 
 
