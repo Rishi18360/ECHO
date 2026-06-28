@@ -12,6 +12,7 @@ To ensure compatibility and avoid dependency issues, please use a Python 3.10.x 
 Recommended Version :Python 3.10.11
 
 Download : https://www.python.org/downloads/release/python-31011/
+(Windows installer (64-bit))
 
 Step 1 : Clone the repository
 
