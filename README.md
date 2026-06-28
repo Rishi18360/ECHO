@@ -1,6 +1,6 @@
 ECHO - Setup Guide
 
-Developed by:
+Developed by :
 - Rishi Raj A (https://github.com/Rishi18360)
 - Ihsan Sakeer (https://github.com/ihsansak)
 - Thanseer Ahmed M S (https://github.com/thansee-r)
@@ -41,3 +41,8 @@ Step 6: Install the required dependencies
 Step 7: Run the application
 
 -> python main.py
+
+Current Limitations :
+- Supports only single-hand gesture recognition.
+- Mode switching currently requires keyboard input.
+- Performance may vary under poor or uneven lighting conditions.
