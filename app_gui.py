@@ -47,7 +47,7 @@ class ModeTile(tk.Canvas):
         self._draw()
 
     def _rounded_rect(self, x1, y1, x2, y2, r, **kw):
-        """Draw a rounded rectangle on the canvas."""
+        
         self.create_arc((x1, y1, x1+2*r, y1+2*r), start=90,  extent=90,  **kw)
         self.create_arc((x2-2*r, y1, x2, y1+2*r),  start=0,   extent=90,  **kw)
         self.create_arc((x1, y2-2*r, x1+2*r, y2),  start=180, extent=90,  **kw)
@@ -60,7 +60,7 @@ class ModeTile(tk.Canvas):
         w = int(self["width"])
         h = int(self["height"])
         r = self.radius
-        # shadow (offset 3px down-right)
+        # shadow
         self._rounded_rect(3, 3, w, h, r, fill=self.SHADOW, outline=self.SHADOW)
         # main shape
         self._rounded_rect(0, 0, w-3, h-3, r, fill=self.color, outline=self.color)
@@ -74,7 +74,7 @@ class ModeTile(tk.Canvas):
 
 
 def distance(a, b):
-    return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+    return math.sqrt((a.x-b.x)**2+(a.y-b.y)**2)
 
 
 def finger_extended(tip, base, palm):
@@ -95,10 +95,12 @@ class EchoApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("ECHO – minimal desktop UI")
-        win_w, win_h = 1245, 730
+        
         scr_w = self.winfo_screenwidth()
         scr_h = self.winfo_screenheight()
-        # use work area (excludes taskbar) via ctypes on Windows
+        win_w = int(scr_w*0.85)
+        win_h = int(scr_h*0.85)
+        
         try:
             import ctypes
             from ctypes import wintypes
@@ -140,25 +142,25 @@ class EchoApp(tk.Tk):
         # overall background
         self.configure(bg="#0d0d0d")
 
-        # grid layout: left panel 1/4, separator, right panel 3/4
+        # grid layout
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1, uniform="a")
         self.grid_columnconfigure(1, weight=0)         # thin separator
         self.grid_columnconfigure(2, weight=3, uniform="a")
 
-        # left panel (slightly lighter dark)
+        
         left_frame = tk.Frame(self, bg="#111118")
         left_frame.grid(row=0, column=0, sticky="nswe")
 
-        # vertical separator
+        
         sep = tk.Frame(self, bg="#00d4ff", width=2)
         sep.grid(row=0, column=1, sticky="ns")
 
-        # right panel
+        
         right_frame = tk.Frame(self, bg="#0d0d0d")
         right_frame.grid(row=0, column=2, sticky="nswe")
 
-        # --- left panel contents ---
+        
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(0, weight=1)   # spacer top
         left_frame.grid_rowconfigure(6, weight=1)   # spacer bottom
@@ -179,7 +181,7 @@ class EchoApp(tk.Tk):
             tile.grid(row=idx, column=0, pady=14, padx=16)
             self.tiles.append(tile)
 
-        # hint lines below tiles, towards the bottom
+        
         self.info_title = tk.Label(
             left_frame,
             text="MODE INFO",
@@ -213,7 +215,7 @@ class EchoApp(tk.Tk):
                 font=("Segoe UI", 9),
             ).pack(anchor="center", pady=1)
 
-        # --- right panel (camera) ---
+        
         right_frame.grid_rowconfigure(0, weight=1)
         right_frame.grid_columnconfigure(0, weight=1)
 
@@ -273,7 +275,7 @@ class EchoApp(tk.Tk):
                     elif self.current_mode == 4:
                         run_entertainment_mode(hand, frame)
 
-        # Communication overlay even when no hand is visible
+        # Communication overlay
         if (self.app_state == "active" and self.current_mode == 3
                 and not result.multi_hand_landmarks):
             run_communication_mode(None, frame)

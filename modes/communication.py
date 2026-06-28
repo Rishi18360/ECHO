@@ -1,15 +1,11 @@
 """Communication mode - ASL gesture recognition.
-
-Recognizes five ASL-inspired single-hand gestures and displays the
-corresponding word on the camera feed.
-
 Gesture -> Word mapping
 -----------------------
-    Open palm (all five fingers)          ->  STOP
-    Thumbs-up (only thumb extended)       ->  YES
-    Thumb + index only                    ->  NO
-    Index + pinky only                    ->  HELP
-    Shaka / Y-hand (thumb + pinky only)   ->  THANKS
+    Open palm (all five fingers)          -  STOP
+    Thumbs-up (only thumb extended)       -  YES
+    Thumb + index only                    -  NO
+    Index + pinky only                    -  HELP
+    Shaka / Y-hand (thumb + pinky only)   -  THANKS
 """
 import math
 import time
@@ -31,8 +27,6 @@ _last_time     = 0.0     # timestamp of last accepted word
 _word          = ""      # currently displayed (confirmed) word
 _word_time     = 0.0     # when _word was set
 
-# ASL gesture table
-# (thumb, index, middle, ring, pinky)  True = extended, None = don't care
 _SIGNS = {
     "STOP":   (True,  True,  True,  True,  True),
     "YES":    (True,  False, False, False, False),
@@ -42,7 +36,6 @@ _SIGNS = {
 }
 
 # Low-level helpers
-
 def _dist(a, b):
     return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 
@@ -57,7 +50,7 @@ def _thumb_up(lm):
 
 
 def _classify(lm):
-    """Return the ASL word matching the current hand shape, or *None*."""
+    #Return the ASL word matching the current hand shape, or *None*.
     state = (
         _thumb_up(lm),
         _finger_up(lm[8],  lm[6],  lm[0]),    # index
@@ -72,7 +65,6 @@ def _classify(lm):
 
 
 # Drawing helpers
-
 def _centered(img, text, cx, cy, scale, color, thick):
     """Draw *text* horizontally centred on (*cx*, *cy*)."""
     (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, scale, thick)
@@ -81,7 +73,7 @@ def _centered(img, text, cx, cy, scale, color, thick):
 
 
 def _hud(frame, word):
-    """Draw the recognised word at bottom-centre of the frame."""
+    #Draw the recognised word at bottom-centre of the frame.
     h, w = frame.shape[:2]
     bar = 60
     top = h - bar
@@ -102,11 +94,7 @@ def _hud(frame, word):
 # Public entry point
 
 def run_communication_mode(hand_landmarks, frame=None):
-    """Process one camera frame for communication mode.
-
-    *hand_landmarks* may be ``None`` when no hand is visible; the overlay
-    is still drawn so the confirmed word and sentence remain on screen.
-    """
+    
     global _track_gesture, _track_count, _miss_count
     global _last_time, _word, _word_time
 
