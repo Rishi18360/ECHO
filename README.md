@@ -4,7 +4,7 @@ Developed by:
 - Rishi Raj A (https://github.com/Rishi18360)
 - Ihsan Sakeer (https://github.com/ihsansak)
 - Thanseer Ahmed M S (https://github.com/thansee-r)
-- Ashwin Sabu (@)
+- Ashwin Sabu (https://github.com/AshwinSabu05)
   
 Note : ECHO was developed and tested using Python 3.10.x. 
 To ensure compatibility and avoid dependency issues, please use a Python 3.10.x version.
