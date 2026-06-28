@@ -1,5 +1,11 @@
 ECHO - Setup Guide
 
+Developed by:
+- Rishi Raj (@Rishi18360)
+- Ihsan Sakeer (@ihsansak)
+- Thanseer Ahmed (@thansee-r)
+- Ashwin Sabu (@)
+  
 Note : ECHO was developed and tested using Python 3.10.x. 
 To ensure compatibility and avoid dependency issues, please use a Python 3.10.x version.
 
