@@ -42,6 +42,14 @@ Step 7: Run the application
 
 -> python main.py
 
+Selecting a Mode :
+After launching ECHO, select a mode by holding up the corresponding number of fingers in front of the webcam:
+1 Finger – Assistive Mode
+2 Fingers – Presentation mode
+3 Fingers – Communication Mode
+4 Fingers – Entertainment Mode
+Once a mode is selected, follow the on-screen instructions to perform the available gestures and actions.
+
 Current Limitations :
 - Supports only single-hand gesture recognition.
 - Mode switching currently requires keyboard input.
