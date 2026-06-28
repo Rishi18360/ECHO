@@ -1,9 +1,9 @@
 ECHO - Setup Guide
 
 Developed by:
-- Rishi Raj (@Rishi18360)
-- Ihsan Sakeer (@ihsansak)
-- Thanseer Ahmed (@thansee-r)
+- Rishi Raj A (https://github.com/Rishi18360)
+- Ihsan Sakeer (https://github.com/ihsansak)
+- Thanseer Ahmed M S (https://github.com/thansee-r)
 - Ashwin Sabu (@)
   
 Note : ECHO was developed and tested using Python 3.10.x. 
