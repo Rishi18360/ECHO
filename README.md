@@ -52,5 +52,4 @@ Once a mode is selected, follow the on-screen instructions to perform the availa
 
 Current Limitations :
 - Supports only single-hand gesture recognition.
-- Mode switching currently requires keyboard input.
 - Performance may vary under poor or uneven lighting conditions.
