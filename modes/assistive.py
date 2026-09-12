@@ -22,7 +22,7 @@ last_hand_y = None
 
 _hand_filter = OneEuroFilter2D(min_cutoff=1.5, beta=0.8, d_cutoff=1.0)
 
-sensitivity = 8.0
+sensitivity = 4.0
 
 #Threshold
 DIST_THRESHOLD = 0.02
