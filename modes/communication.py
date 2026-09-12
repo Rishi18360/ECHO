@@ -17,7 +17,7 @@ _COOLDOWN   = 1.5    # seconds before the next word can be accepted
 _SHOW_SEC   = 3.0    # how long confirmed word stays on screen
 _MISS_TOL   = 3      # frames of no detection before tracking resets
 _FINGER_THR = 0.02   # extension-distance margin (non-thumb fingers)
-_THUMB_THR  = 0.01   # extension-distance margin (thumb)
+_THUMB_THR  = 0.55   # thumb spread/hand-scale ratio threshold
 
 # Module-level state
 _track_gesture = None    # gesture currently being tracked
@@ -45,8 +45,18 @@ def _finger_up(tip, base, wrist):
 
 
 def _thumb_up(lm):
-    # Thumb moves laterally – compare tip (4) vs CMC (2) distance from wrist
-    return _dist(lm[4], lm[0]) > _dist(lm[2], lm[0]) + _THUMB_THR
+    # Old approach compared tip(4)-to-wrist vs CMC(2)-to-wrist distance, but
+    # the thumb moves laterally across the palm rather than radially like
+    # the other fingers, so that mostly picked up hand rotation. Instead,
+    # measure how far the thumb tip has spread away from the index MCP (5),
+    # normalized by wrist-to-middle-MCP distance (a stable hand-size
+    # reference), so the same threshold works regardless of how close the
+    # hand is to the camera.
+    hand_scale = _dist(lm[0], lm[9])
+    if hand_scale < 1e-6:
+        return False
+    spread = _dist(lm[4], lm[5])
+    return (spread / hand_scale) > _THUMB_THR
 
 
 def _classify(lm):

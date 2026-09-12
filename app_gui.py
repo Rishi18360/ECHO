@@ -15,7 +15,8 @@ from modes.communication import run_communication_mode
 from modes.entertainment import run_entertainment_mode
 
 # shared helpers
-HOLD_TIME = 1.0  # seconds
+HOLD_TIME = 1.0       # seconds - hold N fingers in menu to select a mode
+FIST_HOLD_TIME = 1.3  # seconds - hold a fist to exit mode / quit app
 MODE_NAMES = {
     1: "ASSISTIVE MODE",
     2: "PRESENTATION MODE",
@@ -91,6 +92,20 @@ def count_non_thumb_fingers(lm):
     return count
 
 
+def is_thumb_extended(lm, threshold=0.55):
+    # Spread of thumb tip (4) from index MCP (5), normalized by
+    # wrist-to-middle-MCP distance so it holds up at any hand-to-camera
+    # distance. See same fix applied in communication.py's _thumb_up.
+    hand_scale = distance(lm[0], lm[9])
+    if hand_scale < 1e-6:
+        return False
+    return (distance(lm[4], lm[5]) / hand_scale) > threshold
+
+
+def is_fist(lm):
+    return count_non_thumb_fingers(lm) == 0 and not is_thumb_extended(lm)
+
+
 class EchoApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -120,6 +135,7 @@ class EchoApp(tk.Tk):
         self.current_mode = None
         self.last_finger_count = None
         self.gesture_start_time = None
+        self.fist_start_time = None  # separate timer, doesn't touch mode-select timer
 
         self._build_ui()
         self._bind_keys()
@@ -207,6 +223,7 @@ class EchoApp(tk.Tk):
         hints_frame.grid(row=7, column=0, sticky="s", pady=(0, 24))
 
         for hint_text in ("Hold 1\u20134 fingers to select",
+                          "Hold fist: back / quit",
                           "Esc for back",
                           "Q to exit"):
             tk.Label(
@@ -261,10 +278,12 @@ class EchoApp(tk.Tk):
         result = self.hands.process(rgb)
 
         detected = None
+        fist_detected = False
         if result.multi_hand_landmarks:
             for hand in result.multi_hand_landmarks:
                 self.mp_draw.draw_landmarks(frame, hand, self.mp_hands.HAND_CONNECTIONS)
                 detected = count_non_thumb_fingers(hand.landmark)
+                fist_detected = is_fist(hand.landmark)
                 if self.app_state == "active":
                     if self.current_mode == 1:
                         run_assistive_mode(hand,frame)
@@ -279,6 +298,25 @@ class EchoApp(tk.Tk):
         if (self.app_state == "active" and self.current_mode == 3
                 and not result.multi_hand_landmarks):
             run_communication_mode(None, frame)
+
+        # Fist-hold: back-to-menu if in a mode, quit if already at the menu.
+        # Runs on its own timer, independent of the 1-4 finger select timer.
+        if fist_detected:
+            if self.fist_start_time is None:
+                self.fist_start_time = time.time()
+            held = time.time() - self.fist_start_time
+            label = "HOLD TO QUIT" if self.app_state == "menu" else "HOLD TO EXIT MODE"
+            cv2.putText(frame, f"{label} {min(held, FIST_HOLD_TIME):.1f}/{FIST_HOLD_TIME:.1f}s",
+                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 140, 255), 2)
+            if held >= FIST_HOLD_TIME:
+                self.fist_start_time = None
+                if self.app_state == "active":
+                    self._return_to_menu()
+                elif self.app_state == "menu":
+                    self.quit()
+                    return
+        else:
+            self.fist_start_time = None
 
         if self.app_state == "menu":
             if detected in [1, 2, 3, 4]:
@@ -348,10 +386,15 @@ class EchoApp(tk.Tk):
         self.current_mode = None
         self.last_finger_count = None
         self.gesture_start_time = None
+        self.fist_start_time = None
         self._refresh_mode_info()
 
     def quit(self):
         self.running = False
+        try:
+            self.cap.release()
+        except Exception:
+            pass
         super().quit()
 
 
