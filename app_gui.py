@@ -16,7 +16,7 @@ from modes.entertainment import run_entertainment_mode
 
 # shared helpers
 HOLD_TIME = 1.0       # seconds - hold N fingers in menu to select a mode
-FIST_HOLD_TIME = 1.3  # seconds - hold a fist to exit mode / quit app
+FIST_HOLD_TIME = 2.0  # seconds - hold a fist to exit mode / quit app
 MODE_NAMES = {
     1: "ASSISTIVE MODE",
     2: "PRESENTATION MODE",

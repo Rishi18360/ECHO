@@ -28,7 +28,7 @@ _word          = ""      # currently displayed (confirmed) word
 _word_time     = 0.0     # when _word was set
 
 _SIGNS = {
-    "STOP":   (True,  True,  True,  True,  True),
+    "STOP":   (None,  True,  True,  True,  True),
     "YES":    (True,  False, False, False, False),
     "NO":     (True,  True,  False, False, False),
     "HELP":   (None,  True,  False, False, True),
